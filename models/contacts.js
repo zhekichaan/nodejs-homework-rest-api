@@ -24,9 +24,6 @@ const getContactById = async (contactId) => {
 const removeContact = async (contactId) => {
   const contacts = await getDB()
   const contact = contacts.find((item) => item.id === contactId)
-  if(!contact) {
-    return null
-  }
   const filteredContacts = contacts.filter((item) => item.id !== contactId)
   await fs.writeFile(contactsPath, JSON.stringify(filteredContacts))
   return contact;
@@ -44,22 +41,10 @@ const addContact = async (body) => {
 
 const updateContact = async (contactId, body) => {
   const contacts = await getDB()
-  const { name, email, phone } = body
-  const index = contacts.findIndex((item) => item.id === contactId)
-  if(index === -1) {
-    return null
-  }
-  if(name) {
-    contacts[index].name = name
-  }
-  if(email) {
-    contacts[index].email =  email
-  }
-  if(phone) {
-    contacts[index].phone = phone
-  }
+  const contact = contacts.find((item) => item.id === contactId)
+  const updatedContact = Object.assign(contact, body)
   await fs.writeFile(contactsPath, JSON.stringify(contacts))
-  return contacts[index]
+  return updatedContact
 }
 
 module.exports = {
