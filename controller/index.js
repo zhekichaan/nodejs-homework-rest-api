@@ -5,7 +5,7 @@ const get = async (req, res, next) => {
     const contacts = await models.listContacts()
     res.status(200).json(contacts)
   } catch (e) {
-    console.log(e);
+    console.error(e);
     next(e)
   }
 }
