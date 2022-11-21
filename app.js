@@ -21,4 +21,6 @@ app.use((err, _, res, __) => {
   res.status(status).json({ message });
 });
 
-module.exports = app
+module.exports = { 
+  app
+}
