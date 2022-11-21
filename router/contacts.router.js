@@ -1,6 +1,6 @@
 const express = require('express')
 const router = express.Router()
-const ctrlContact = require('../controller')
+const ctrlContact = require('../controller/contacts.controller')
 const { validationBody } = require('../middlewares/validationBody')
 const { postSchema, putSchema, patchSchema } = require('../schemas/schema')
 
