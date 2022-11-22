@@ -19,7 +19,7 @@ const patchSchema = Joi.object({
   })
 })
 
-const registerSchema = Joi.object({
+const authSchema = Joi.object({
   email: Joi.string().required(),
   password: Joi.string().required()
 })
@@ -28,5 +28,5 @@ module.exports = {
   postSchema,
   putSchema,
   patchSchema,
-  registerSchema
+  authSchema
 }
