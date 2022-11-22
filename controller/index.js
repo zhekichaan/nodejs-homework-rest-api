@@ -44,13 +44,8 @@ const create = async (req, res, next) => {
 const remove = async (req, res, next) => {
   try {
     const { contactId } = req.params;
-    const contact = await Contact.findById(contactId)
-    if(contact) {
-      await Contact.findByIdAndDelete(contactId)
-      res.status(200).json({ message: "contact deleted" })
-    } else {
-      res.status(404).json({ message: "Not found" })
-    }
+    await Contact.findByIdAndDelete(contactId);
+    res.status(204).json({ message: "contact deleted" });
   } catch (e) {
     console.error(e);
     next(e);
@@ -60,15 +55,11 @@ const remove = async (req, res, next) => {
 const update = async (req, res, next) => {
   try {
     const { contactId } = req.params;
-    const contact = await Contact.findByIdAndUpdate(contactId, req.body, { new: true })
-    if(contact) {
-      res.status(200).json({ 
-        message: 'updated contact:',
-        data: contact
-     })
-    } else {
-      res.status(404).json({ message: "Not found" })
-    }
+    const contact = await Contact.findByIdAndUpdate(contactId, req.body, { new: true });
+    res.status(200).json({ 
+      message: 'updated contact:',
+      data: contact
+    });
   } catch (e) {
     console.error(e);
     next(e);
@@ -79,14 +70,10 @@ const updateStatusContact = async (req, res, next) => {
   try {
     const { contactId } = req.params;
     const contact = await Contact.findByIdAndUpdate(contactId, req.body, { new: true })
-    if(contact) {
-      res.status(200).json({ 
-        message: 'updated contact:',
-        data: contact
-     })
-    } else {
-      res.status(404).json({ message: "Not found" })
-    }
+    res.status(200).json({ 
+      message: 'updated contact:',
+      data: contact
+    })
   } catch (e) {
     console.error(e);
     next(e);
