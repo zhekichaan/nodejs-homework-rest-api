@@ -23,17 +23,14 @@ const register = async (req, res, next) => {
     next(error);
   }
   return res.status(201).json({
-    data: {
-      user: {
-        _id: user._id,
-      },
+    user: {
+      email: user.email,
+      subscription: user.subscription
     },
   });
 }
 
 const login = async (req, res, next) => {
-    // const authHeader = req.headers.authorization || "";
-
     const { email, password } = req.body;
     const user = await User.findOne({ email });
     if (!user) {
@@ -56,9 +53,11 @@ const login = async (req, res, next) => {
     await User.findByIdAndUpdate(user._id, user);
 
     return res.json({
-        data: {
-          token,
-        },
+      token: token,
+      user: {
+        email: user.email,
+        subscription: user.subscription
+      },
       });
 }
 
