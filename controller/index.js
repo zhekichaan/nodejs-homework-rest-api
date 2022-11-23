@@ -41,7 +41,7 @@ const remove = async (req, res, next) => {
   try {
     const { contactId } = req.params;
     const deletedContact = await Contact.findByIdAndDelete(contactId);
-    deletedContact ? res.status(204).json({ deletedContact }) : res.status(404).json({ message: "Not Found" });
+    deletedContact ? res.status(200).json({ deletedContact }) : res.status(404).json({ message: "Not Found" });
   } catch (e) {
     console.error(e);
     next(e);
