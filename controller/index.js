@@ -14,11 +14,7 @@ const getById =  async (req, res, next) => {
   try {
     const { contactId } = req.params;
     const contact = await Contact.findById(contactId)
-    if(contact) {
-      res.status(200).json(contact)
-    } else {
-      res.status(404).json({ message: "Not found" })
-    }
+    contact ? res.status(200).json(contact) : res.status(404).json({ message: "Not found" })
   } catch (e) {
     console.error(e);
     next(e)
@@ -44,8 +40,8 @@ const create = async (req, res, next) => {
 const remove = async (req, res, next) => {
   try {
     const { contactId } = req.params;
-    await Contact.findByIdAndDelete(contactId);
-    res.status(204).json({ message: "contact deleted" });
+    const deletedContact = await Contact.findByIdAndDelete(contactId);
+    deletedContact ? res.status(204).json({ deletedContact }) : res.status(404).json({ message: "Not Found" });
   } catch (e) {
     console.error(e);
     next(e);
@@ -55,11 +51,8 @@ const remove = async (req, res, next) => {
 const update = async (req, res, next) => {
   try {
     const { contactId } = req.params;
-    const contact = await Contact.findByIdAndUpdate(contactId, req.body, { new: true });
-    res.status(200).json({ 
-      message: 'updated contact:',
-      data: contact
-    });
+    const updatedContact = await Contact.findByIdAndUpdate(contactId, req.body, { new: true });
+    updatedContact ? res.status(200).json({ updatedContact }) : res.status(404).json({ message: 'Not found' })
   } catch (e) {
     console.error(e);
     next(e);
@@ -69,11 +62,8 @@ const update = async (req, res, next) => {
 const updateStatusContact = async (req, res, next) => {
   try {
     const { contactId } = req.params;
-    const contact = await Contact.findByIdAndUpdate(contactId, req.body, { new: true })
-    res.status(200).json({ 
-      message: 'updated contact:',
-      data: contact
-    })
+    const updatedContact = await Contact.findByIdAndUpdate(contactId, req.body, { new: true })
+    updatedContact ? res.status(200).json({ updatedContact }) : res.status(404).json({ message: 'Not found' })
   } catch (e) {
     console.error(e);
     next(e);
