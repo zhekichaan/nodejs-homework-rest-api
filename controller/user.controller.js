@@ -10,8 +10,7 @@ const register = async (req, res, next) => {
   const user = new User({ email, password });
   const salt = await bcrypt.genSalt();
   const hashedPassword = await bcrypt.hash(password, salt);
-  user.password = hashedPassword
-  // fix later
+  user.password = hashedPassword;
   try {
     await user.save();
   } catch (error) {
