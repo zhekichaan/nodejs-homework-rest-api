@@ -8,16 +8,26 @@ const get = async (req, res, next) => {
   
 const getById =  async (req, res, next) => {
   const { contactId } = req.params;
-  const contact = await Contact.findById(contactId)
-  contact ? res.status(200).json({ contact }) : res.status(404).json({ message: "Not found" })
+  const contact = await Contact.findById(contactId);
+  contact ? res.status(200).json({ contact }) : res.status(404).json({ message: "Not found" });
 }
   
 const create = async (req, res, next) => {
+  const { user } = req;
+  const owner = user._id;
+  const { name, email, phone, favorite } = req.body;
   if(!req.body.favorite) {
-    req.body.favorite = false
+    req.body.favorite = false;
   }
-  const contact = await Contact.create(req.body)
-  res.status(201).json({ contact })
+  const contact = new Contact({
+    name,
+    email,
+    phone,
+    favorite,
+    owner
+  });
+  const result = await contact.save();
+  res.status(201).json({ result });
 }
 
 const remove = async (req, res, next) => {
