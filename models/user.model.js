@@ -1,4 +1,4 @@
-const { Schema, SchemaTypes, model } = require("mongoose")
+const { Schema, model } = require("mongoose")
 
 const userSchema = new Schema(
     {
@@ -19,10 +19,6 @@ const userSchema = new Schema(
         token: {
             type: String,
             default: null,
-        },
-        owner: {
-            type: SchemaTypes.ObjectId,
-            ref: 'user',
         }
     }
 )

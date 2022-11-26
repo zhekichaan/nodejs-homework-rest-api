@@ -1,16 +1,8 @@
 const { Contact } = require("../models/contact.model")
 
 const get = async (req, res, next) => {
-  const contacts = await Contact.find()
   const { page, limit, favorite } = req.query;
-  if(page && limit) {
-    const startIndex = (page - 1) * limit;
-    const endIndex = page * limit;
-    return res.status(200).json({ contacts: contacts.slice(startIndex, endIndex) });
-  } 
-  if(favorite === true) {
-    return res.status(200).json({ contacts: contacts.filter(contact => contact.favorite === true) });
-  }
+  const contacts = favorite ? await Contact.find({ favorite: true }).limit(limit * 1).skip((page-1) * limit) : await Contact.find().limit(limit * 1).skip((page-1) * limit)
   return res.status(200).json({ contacts });
 }
   
