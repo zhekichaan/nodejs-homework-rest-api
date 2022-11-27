@@ -1,8 +1,8 @@
 const express = require('express')
 const logger = require('morgan')
 const cors = require('cors')
-
-const contactsRouter = require('./router/contacts')
+const userRouter = require("./router/user.router")
+const contactsRouter = require('./router/contacts.router')
 
 const app = express()
 
@@ -12,15 +12,16 @@ app.use(logger(formatsLogger))
 app.use(cors())
 app.use(express.json())
 
+app.use("/api/users", userRouter)
 app.use('/api/contacts', contactsRouter)
 
-app.use((_, res) => res.status(404).json({ message: "Not Found" }));
+app.use((_, res) => res.status(404).json({ message: "Not Found" }))
 
 app.use((err, _, res, __) => {
-  const { status = 500, message = "Server internal error" } = err;
-  res.status(status).json({ message });
-});
+  const { status = 500, message = "Server internal error" } = err
+  res.status(status).json({ message })
+})
 
-module.exports = { 
+module.exports = {
   app
 }

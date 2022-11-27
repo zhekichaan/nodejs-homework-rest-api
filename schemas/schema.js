@@ -19,8 +19,19 @@ const patchSchema = Joi.object({
   })
 })
 
+const authSchema = Joi.object({
+  email: Joi.string().required(),
+  password: Joi.string().required()
+})
+
+const subscriptionSchema = Joi.object({
+  subscription: Joi.string().valid('starter', 'pro', 'business')
+})
+
 module.exports = {
   postSchema,
   putSchema,
-  patchSchema
+  patchSchema,
+  authSchema,
+  subscriptionSchema
 }
