@@ -11,11 +11,10 @@ const { JWT_SECRET } = process.env;
 
 const register = async (req, res, next) => {
   const { email, password } = req.body;
-  const user = new User({ email, password });
-  const url = gravatar.url(email)
+  const avatarURL = gravatar.url(email)
+  const user = new User({ email, password, avatarURL });
   const salt = await bcrypt.genSalt();
   const hashedPassword = await bcrypt.hash(password, salt);
-  user.avatarURL = url
   user.password = hashedPassword;
   try {
     await user.save();
