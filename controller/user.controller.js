@@ -49,25 +49,25 @@ const login = async (req, res, next) => {
 
 const logout = async (req, res, next) => {
   const { user } = req;
-  user ? user.token = null : next(new Unauthorized("Not authorized"));
+  user.token = null
   await User.findByIdAndUpdate(user._id, user);
   return res.status(204).json({});
 }
 
 const current = async (req, res, next) => {
   const { user } = req;
-  user ? res.status(200).json({
+  res.status(200).json({
     data: {
       email: user.email,
       subscription: user.subscription
     }
-  }) : next(new Unauthorized("Not authorized"));
+  })
 }
 
 const updateSubscription = async (req, res, next) => {
   const { user } = req;
   const { subscription } = req.body;
-  user ? user.subscription = subscription : next(new Unauthorized("Not authorized"));
+  user.subscription = subscription
   return res.status(200).json({
     data: {
       email: user.email,
@@ -78,16 +78,12 @@ const updateSubscription = async (req, res, next) => {
 
 const updateAvatar = async (req, res, next) => {
   const { user, file } = req
-  if(!user) {
-    next(new Unauthorized("Not authorized"));
-  } 
   file.filename = user._id + ".jpeg"
   const image = await jimp.read(file.path);
   image.resize(250, 250);
   await image.writeAsync(file.path);
   const newPath = path.join(__dirname, "../public/avatars", file.filename);
   await fs.rename(file.path, newPath);
-  
   user.avatarURL = "/avatars/" + file.filename
   await User.findByIdAndUpdate(user._id, user);
   return res.json({ 
