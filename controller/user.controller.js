@@ -2,14 +2,20 @@ const { User } = require("../models/user.model");
 const bcrypt = require("bcrypt");
 const { Unauthorized, Conflict } = require("http-errors");
 const jwt = require("jsonwebtoken");
+const gravatar = require('gravatar')
+const path = require("path");
+const fs = require("fs/promises");
+const jimp = require("jimp");
 
 const { JWT_SECRET } = process.env;
 
 const register = async (req, res, next) => {
   const { email, password } = req.body;
   const user = new User({ email, password });
+  const url = gravatar.url(email)
   const salt = await bcrypt.genSalt();
   const hashedPassword = await bcrypt.hash(password, salt);
+  user.avatarURL = url
   user.password = hashedPassword;
   try {
     await user.save();
@@ -71,10 +77,30 @@ const updateSubscription = async (req, res, next) => {
   });
 }
 
+const updateAvatar = async (req, res, next) => {
+  const { user, file } = req
+  if(!user) {
+    next(new Unauthorized("Not authorized"));
+  } 
+  file.filename = user._id + ".jpeg"
+  const image = await jimp.read(file.path);
+  image.resize(250, 250);
+  await image.writeAsync(file.path);
+  const newPath = path.join(__dirname, "../public/avatars", file.filename);
+  await fs.rename(file.path, newPath);
+  
+  user.avatarURL = "/avatars/" + file.filename
+  await User.findByIdAndUpdate(user._id, user);
+  return res.json({ 
+    avatarURL: "/avatars/" + file.filename
+   })
+}
+
 module.exports = {
     register,
     login,
     logout,
     current,
-    updateSubscription
+    updateSubscription,
+    updateAvatar
 }
