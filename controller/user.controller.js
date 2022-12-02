@@ -6,13 +6,28 @@ const gravatar = require('gravatar')
 const path = require("path");
 const fs = require("fs/promises");
 const jimp = require("jimp");
+const { nanoid } = require("nanoid");
+const sendGrid = require("@sendgrid/mail");
 
-const { JWT_SECRET } = process.env;
+const { JWT_SECRET, SEND_GRID_API_KEY } = process.env;
+sendGrid.setApiKey(SEND_GRID_API_KEY);
+
+const msg = (email, token) => {
+  return {
+    to: email,
+    from: 'eugene.chernitskiy@gmail.com',
+    subject: 'Verify your email',
+    text: `Please open this link: localhost:3000/api/users/verify/${token} to verify your email`,
+    html: `<h1> Please open this link: localhost:3000/api/users/verify/${token} to verify your email <h1>`,
+  }
+}
 
 const register = async (req, res, next) => {
   const { email, password } = req.body;
   const avatarURL = gravatar.url(email)
-  const user = new User({ email, password, avatarURL });
+  const verificationToken = nanoid()
+  const user = new User({ email, password, avatarURL, verificationToken });
+  await sendGrid.send(msg(email, verificationToken));
   const salt = await bcrypt.genSalt();
   const hashedPassword = await bcrypt.hash(password, salt);
   user.password = hashedPassword;
@@ -36,6 +51,9 @@ const register = async (req, res, next) => {
 const login = async (req, res, next) => {
   const { email, password } = req.body;
   const user = await User.findOne({ email });
+  if(user.verify === false) {
+    res.status(404).json({ message: "Email is not verified" })
+  }
   user && await bcrypt.compare(password, user.password) ? user.token = jwt.sign({ _id: user._id }, JWT_SECRET) : next(new Unauthorized("Email or password is wrong"));
   await User.findByIdAndUpdate(user._id, user);
   return res.json({
@@ -86,9 +104,28 @@ const updateAvatar = async (req, res, next) => {
   await fs.rename(file.path, newPath);
   user.avatarURL = "/avatars/" + file.filename
   await User.findByIdAndUpdate(user._id, user);
-  return res.json({ 
+  return res.json({
     avatarURL: "/avatars/" + file.filename
    })
+}
+
+const verify = async (req, res, next) => {
+  const { verificationToken } = req.params
+  const user = await User.findOneAndUpdate({ verificationToken }, {
+    verificationToken: null,
+    verify: true
+  }, {new: true})
+  user ? res.status(200).json({message: "Verification successful"}) : res.status(404).json({message: "Not Found"});
+}
+
+const resendVerifyEmail = async (req, res, next) => {
+  const { email } = req.body
+  const user = await User.findOne({ email });
+  if(user.verify === true) {
+    return res.status(400).json({ message: "Verification has already been passed"});
+  }
+    await sendGrid.send(msg(email, user.verificationToken));
+    return res.status(200).json({ message: "Verification email sent"});
 }
 
 module.exports = {
@@ -97,5 +134,7 @@ module.exports = {
     logout,
     current,
     updateSubscription,
-    updateAvatar
+    updateAvatar,
+    verify,
+    resendVerifyEmail
 }
